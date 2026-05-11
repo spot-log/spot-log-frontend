@@ -1,0 +1,58 @@
+:root {
+  color-scheme: light;
+
+  --font-sans: "SUIT Variable", "Pretendard Variable", "Noto Sans KR", "Apple SD Gothic Neo",
+    sans-serif;
+  --font-display: "Fraunces", "Iowan Old Style", "Georgia", serif;
+
+  --color-page: #f0ede8;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f5f3ef;
+  --color-surface-elevated: #fcfaf6;
+  --color-map: #e8e4dc;
+  --color-map-block: #d9d4ca;
+  --color-map-park: #c8dab8;
+
+  --color-text-primary: #2b2926;
+  --color-text-secondary: #5a5753;
+  --color-text-muted: #8b8781;
+  --color-text-inverse: #ffffff;
+
+  --color-border-soft: rgba(43, 41, 38, 0.08);
+  --color-border-strong: rgba(43, 41, 38, 0.16);
+  --color-overlay: rgba(18, 17, 15, 0.44);
+
+  --color-blue: #185fa5;
+  --color-blue-soft: #e6f1fb;
+  --color-green: #1d9e75;
+  --color-green-soft: #e1f5ee;
+  --color-red: #c0392b;
+  --color-red-soft: #fdeae7;
+  --color-gold: #a9893f;
+  --color-gold-soft: #f3ead1;
+
+  --shadow-soft: 0 14px 30px rgba(43, 41, 38, 0.08);
+  --shadow-strong: 0 24px 60px rgba(43, 41, 38, 0.16);
+
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-2xl: 40px;
+  --radius-pill: 999px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  --phone-width: 360px;
+  --phone-height: 720px;
+
+  --transition-base: 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
