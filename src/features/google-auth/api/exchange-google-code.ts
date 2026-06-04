@@ -38,7 +38,7 @@ export async function exchangeGoogleCode(
     ...(options?.codeVerifier ? { codeVerifier: options.codeVerifier } : undefined),
   };
 
-  const response = await fetch(buildApiUrl(googleOAuthCodePath), {
+  const response = await fetch(`https://spot-log-frontend.vercel.app/${googleOAuthCodePath}`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
