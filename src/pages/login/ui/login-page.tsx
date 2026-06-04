@@ -9,25 +9,25 @@ export function LoginPage() {
   return (
     <main className="login-page">
       <section className="login-page__panel">
-        <span className="login-page__badge">Google OAuth</span>
+        <span className="login-page__badge">SpotLog Login</span>
 
         <div className="login-page__hero">
           <h1>SpotLog</h1>
-          <p>Google 계정으로 로그인하고 위치 메모 기능을 시작하는 기본 로그인 화면입니다.</p>
+          <p>지금 있는 위치를 기록하고, 다시 지나갈 때 필요한 메모를 남겨두세요.</p>
         </div>
 
         <div className="login-page__features">
           <article className="login-page__feature">
-            <strong>Authorization Code Flow</strong>
-            <span>프론트 redirect URI에서 code를 받고 백엔드 API로 교환합니다.</span>
+            <strong>현재 위치 기반 메모</strong>
+            <span>내 위치를 바로 불러와서 메모를 남기고 지도에서 다시 확인할 수 있습니다.</span>
           </article>
           <article className="login-page__feature">
-            <strong>Backend Token Exchange</strong>
-            <span>토큰 발급과 사용자 생성은 백엔드가 처리하고 프론트는 결과만 받습니다.</span>
+            <strong>공개 메모 탐색</strong>
+            <span>주변 공개 메모를 살펴보고 필요한 메모는 북마크해서 따로 관리할 수 있습니다.</span>
           </article>
           <article className="login-page__feature">
-            <strong>Actual App Entry</strong>
-            <span>실제 앱 진입 전에 사용하는 기본 인증 페이지입니다.</span>
+            <strong>다시 들어오면 알림</strong>
+            <span>설정한 반경에 다시 들어오면 메모를 놓치지 않도록 브라우저 알림으로 알려줍니다.</span>
           </article>
         </div>
 
