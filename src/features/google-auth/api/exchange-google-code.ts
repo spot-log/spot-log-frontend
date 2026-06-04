@@ -1,4 +1,4 @@
-import { googleOAuthRedirectUri } from '../../../shared/config';
+import { buildApiUrl, googleOAuthRedirectUri } from '../../../shared/config';
 import type { AuthSession, GoogleCodeExchangeRequest } from '../model/types';
 
 const googleOAuthCodePath = '/auth/google/code';
@@ -38,7 +38,7 @@ export async function exchangeGoogleCode(
     ...(options?.codeVerifier ? { codeVerifier: options.codeVerifier } : undefined),
   };
 
-  const response = await fetch(`https://spot-log-frontend.vercel.app/${googleOAuthCodePath}`, {
+  const response = await fetch(buildApiUrl(googleOAuthCodePath), {
     method: 'POST',
     headers: {
       Accept: 'application/json',
