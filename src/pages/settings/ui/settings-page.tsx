@@ -32,6 +32,9 @@ export function SettingsPage() {
       onLogout={page.handleLogout}
       onOpenDeleteAccount={() => page.setDeleteAccountOpen(true)}
       onPreviewOverlay={page.handlePreviewOverlay}
+      canInstallApp={page.canInstallApp}
+      isAppInstalled={page.isAppInstalled}
+      onInstallApp={page.handleInstallApp}
     />
   );
 }

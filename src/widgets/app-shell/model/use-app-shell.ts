@@ -56,6 +56,14 @@ type Coordinate = {
   lng: number;
 };
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{
+    outcome: 'accepted' | 'dismissed';
+    platform: string;
+  }>;
+}
+
 type ProximityAlertTarget = WorkerNotificationTarget;
 
 const REPUBLISH_DURATION_DAYS = DEFAULT_PUBLIC_EXPIRY_DAYS;
@@ -252,6 +260,8 @@ export function useAppShell({
   const [currentLocationAddress, setCurrentLocationAddress] = useState('');
   const [notificationTarget, setNotificationTarget] = useState<ProximityAlertTarget | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
+  const [isAppInstalled, setIsAppInstalled] = useState(false);
 
   useEffect(() => {
     logoutHandlerRef.current = onLogout;
@@ -501,6 +511,14 @@ export function useAppShell({
   );
 
   const composeMode: 'create' | 'edit' = editingMemoId ? 'edit' : 'create';
+  const canInstallApp = Boolean(installPromptEvent) && !isAppInstalled;
+  const isIosDevice =
+    typeof window !== 'undefined' &&
+    /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+  const isChromiumBrowser =
+    typeof window !== 'undefined' &&
+    /chrome|chromium|edg/i.test(window.navigator.userAgent) &&
+    !/firefox|samsungbrowser/i.test(window.navigator.userAgent);
 
   const draftValidationMessage = useMemo(() => {
     if (!session) {
@@ -533,6 +551,43 @@ export function useAppShell({
     };
 
     setToasts((current) => [nextToast, ...current].slice(0, 3));
+  }
+
+  async function handleInstallApp() {
+    if (isAppInstalled) {
+      pushToast('이미 설치되어 있습니다', '홈 화면이나 앱 목록에서 SpotLog를 열 수 있습니다.');
+      return;
+    }
+
+    if (installPromptEvent) {
+      await installPromptEvent.prompt();
+      const choice = await installPromptEvent.userChoice;
+
+      if (choice.outcome === 'accepted') {
+        pushToast('앱 설치를 시작했습니다', '브라우저 설치 확인이 끝나면 앱처럼 실행할 수 있습니다.', 'success');
+      } else {
+        pushToast('앱 설치가 취소되었습니다', '원할 때 설정 화면에서 다시 시도할 수 있습니다.');
+      }
+
+      setInstallPromptEvent(null);
+      return;
+    }
+
+    if (isIosDevice) {
+      pushToast(
+        'iPhone/iPad 설치 안내',
+        'Safari 공유 메뉴에서 "홈 화면에 추가"를 선택하면 설치할 수 있습니다.',
+      );
+      return;
+    }
+
+    pushToast(
+      '설치 프롬프트를 아직 띄울 수 없습니다',
+      isChromiumBrowser
+        ? 'Chrome 또는 Edge에서 localhost/https 환경으로 다시 열고, 페이지를 한 번 새로고침한 뒤 시도해보세요.'
+        : '이 브라우저는 자동 설치 프롬프트를 지원하지 않을 수 있습니다. 브라우저 메뉴의 설치 또는 홈 화면 추가를 사용해보세요.',
+      'danger',
+    );
   }
 
   function stopNotificationWorker() {
@@ -1203,6 +1258,48 @@ export function useAppShell({
   }, []);
 
   useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const standaloneMedia = window.matchMedia?.('(display-mode: standalone)');
+    const syncInstalledState = () => {
+      const isStandalone =
+        Boolean(standaloneMedia?.matches) ||
+        Boolean((window.navigator as Navigator & { standalone?: boolean }).standalone);
+
+      setIsAppInstalled(isStandalone);
+      if (isStandalone) {
+        setInstallPromptEvent(null);
+      }
+    };
+
+    syncInstalledState();
+
+    const handleBeforeInstallPrompt = (event: Event) => {
+      event.preventDefault();
+      setInstallPromptEvent(event as BeforeInstallPromptEvent);
+      syncInstalledState();
+    };
+
+    const handleAppInstalled = () => {
+      setInstallPromptEvent(null);
+      setIsAppInstalled(true);
+      pushToast('앱 설치가 완료되었습니다', '이제 SpotLog를 앱처럼 실행할 수 있습니다.', 'success');
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+    standaloneMedia?.addEventListener?.('change', syncInstalledState);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+      standaloneMedia?.removeEventListener?.('change', syncInstalledState);
+    };
+  }, []);
+
+  useEffect(() => {
     if (typeof window === 'undefined' || typeof Worker === 'undefined') {
       return;
     }
@@ -1681,6 +1778,8 @@ export function useAppShell({
     notificationPermission,
     notificationTarget,
     toasts,
+    canInstallApp,
+    isAppInstalled,
     currentLocation,
     selectedLocation,
     publicMemos,
@@ -1725,6 +1824,7 @@ export function useAppShell({
     handleTogglePublicAlerts,
     handlePreviewOverlay,
     handleOpenNotificationDetail,
+    handleInstallApp,
     handleDeleteAccountConfirm,
     handleLogout,
   };
