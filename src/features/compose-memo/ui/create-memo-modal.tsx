@@ -24,6 +24,7 @@ function getTodayDateInput() {
 
 export function CreateMemoModal({
   open,
+  mode = 'create',
   draft,
   validationMessage,
   locations,
@@ -36,6 +37,7 @@ export function CreateMemoModal({
   onSelectLocation,
 }: {
   open: boolean;
+  mode?: 'create' | 'edit';
   draft: ComposeDraft;
   validationMessage: string;
   locations: LocationResult[];
@@ -48,12 +50,17 @@ export function CreateMemoModal({
   onSelectLocation: (location: LocationResult) => void;
 }) {
   const minDate = getTodayDateInput();
+  const isEditMode = mode === 'edit';
 
   return (
     <FullScreenModal
       open={open}
-      title="메모 작성"
-      subtitle="제목, 본문, 위치, 반경, 공개 여부를 한 번에 정할 수 있습니다."
+      title={isEditMode ? '메모 수정' : '메모 작성'}
+      subtitle={
+        isEditMode
+          ? '제목, 본문, 위치, 반경, 공개 여부를 수정할 수 있습니다.'
+          : '제목, 본문, 위치, 반경, 공개 여부를 한 번에 정할 수 있습니다.'
+      }
       onClose={onClose}
       footer={
         <div className="button-row" style={{ width: '100%' }}>
@@ -61,14 +68,14 @@ export function CreateMemoModal({
             취소
           </Button>
           <Button fullWidth onClick={onSave} disabled={Boolean(validationMessage)}>
-            저장
+            {isEditMode ? '수정 완료' : '저장'}
           </Button>
         </div>
       }
     >
       <TextInput
         label="제목"
-        helperText="비워두면 본문 앞부분으로 제목이 자동 생성됩니다."
+        helperText="비워두면 본문 앞 10자가 제목으로 자동 설정됩니다."
         placeholder="메모 제목을 입력하세요"
         value={draft.title}
         onChange={(value) => onChangeDraft('title', value)}
@@ -79,7 +86,7 @@ export function CreateMemoModal({
         helperText="1자 이상 1000자 이하로 입력해야 저장할 수 있습니다."
         value={draft.content}
         onChange={(value) => onChangeDraft('content', value)}
-        placeholder="이 위치에서 확인해야 할 내용을 적어보세요."
+        placeholder="이 위치에서 확인해야 할 내용을 적어보세요"
         maxLength={1000}
       />
 
@@ -104,7 +111,7 @@ export function CreateMemoModal({
 
       <div className="search-results">
         {isSearchingLocations ? (
-          <div className="search-empty">장소를 검색하는 중입니다.</div>
+          <div className="search-empty">장소를 검색하고 있습니다.</div>
         ) : locations.length ? (
           locations.map((location) => (
             <button
@@ -125,7 +132,10 @@ export function CreateMemoModal({
       <div className="location-preview">
         <div className="location-preview__copy">
           <strong>{selectedLocation?.name ?? '위치를 선택하세요'}</strong>
-          <span>{selectedLocation?.address ?? '현재 위치를 쓰거나 장소 검색 결과에서 위치를 선택할 수 있습니다.'}</span>
+          <span>
+            {selectedLocation?.address ??
+              '현재 위치를 쓰거나 장소 검색 결과에서 위치를 선택할 수 있습니다.'}
+          </span>
         </div>
 
         <KakaoMapCanvas

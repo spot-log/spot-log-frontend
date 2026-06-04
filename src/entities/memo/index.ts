@@ -1,5 +1,6 @@
 export {
   CURRENT_LOCATION,
+  DEFAULT_PUBLIC_EXPIRY_DAYS,
   LOCATION_RESULTS,
   autoTitle,
   bottomTabs,

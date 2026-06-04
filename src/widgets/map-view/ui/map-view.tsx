@@ -86,6 +86,10 @@ export function MapView({
               id: group.representative.id,
               position: group.representative.coordinate,
               tone: group.tone,
+              opacity:
+                group.tone === 'public'
+                  ? group.representative.progress ?? 1
+                  : 1,
               label: group.locationName,
               subtitle:
                 group.memos.length > 1

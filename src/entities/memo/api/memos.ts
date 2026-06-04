@@ -43,6 +43,16 @@ export interface UpdateMemoRequest {
   expiresAt?: string;
 }
 
+export interface RepublishMemoRequest {
+  durationDays: number;
+}
+
+export interface BookmarkMutationResponse {
+  memoId: string;
+  bookmarked?: boolean;
+  removed?: boolean;
+}
+
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -186,13 +196,35 @@ async function requestJson<T>({
 
 export function fetchMyMemos({
   accessToken,
+  query,
+  signal,
+}: {
+  accessToken: string;
+  query?: {
+    tab?: 'private' | 'public' | 'expired';
+    sort?: 'recent' | 'expiresSoon' | 'distance';
+    latitude?: number;
+    longitude?: number;
+  };
+  signal?: AbortSignal;
+}) {
+  return requestJson<ApiMemo[]>({
+    path: '/memos/me',
+    accessToken,
+    query,
+    signal,
+  });
+}
+
+export function fetchBookmarkedMemos({
+  accessToken,
   signal,
 }: {
   accessToken: string;
   signal?: AbortSignal;
 }) {
   return requestJson<ApiMemo[]>({
-    path: '/memos/me',
+    path: '/memos/me/bookmarks',
     accessToken,
     signal,
   });
@@ -297,15 +329,54 @@ export function deleteMemo({
 export function republishMemo({
   accessToken,
   memoId,
+  body,
+  signal,
+}: {
+  accessToken: string;
+  memoId: string;
+  body: RepublishMemoRequest;
+  signal?: AbortSignal;
+}) {
+  return requestJson<ApiMemo>({
+    path: `/memos/${memoId}/republish`,
+    method: 'POST',
+    accessToken,
+    body,
+    signal,
+    responseBody: 'optional',
+  });
+}
+
+export function addBookmark({
+  accessToken,
+  memoId,
   signal,
 }: {
   accessToken: string;
   memoId: string;
   signal?: AbortSignal;
 }) {
-  return requestJson<ApiMemo>({
-    path: `/memos/${memoId}/republish`,
+  return requestJson<BookmarkMutationResponse>({
+    path: `/memos/${memoId}/bookmark`,
     method: 'POST',
+    accessToken,
+    signal,
+    responseBody: 'optional',
+  });
+}
+
+export function removeBookmark({
+  accessToken,
+  memoId,
+  signal,
+}: {
+  accessToken: string;
+  memoId: string;
+  signal?: AbortSignal;
+}) {
+  return requestJson<BookmarkMutationResponse>({
+    path: `/memos/${memoId}/bookmark`,
+    method: 'DELETE',
     accessToken,
     signal,
     responseBody: 'optional',

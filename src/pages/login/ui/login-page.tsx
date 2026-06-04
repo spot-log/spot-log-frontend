@@ -1,5 +1,5 @@
 import { redirectToGoogleAuthorization } from '../../../features/google-auth';
-import { googleOAuthClientId, googleOAuthRedirectUri } from '../../../shared/config';
+import { googleOAuthClientId } from '../../../shared/config';
 import { SocialLoginButton } from '../../../shared/ui';
 import '../../../features/google-auth/ui/google-auth-page.css';
 
@@ -38,13 +38,8 @@ export function LoginPage() {
           />
         </div>
 
-        <div className={`login-page__helper ${isOAuthReady ? '' : 'is-error'}`}>
-          {isOAuthReady ? (
-            <>
-              <strong>Redirect URI</strong>
-              <span>{googleOAuthRedirectUri}</span>
-            </>
-          ) : (
+        {!isOAuthReady ? (
+          <div className="login-page__helper is-error">
             <>
               <strong>설정 필요</strong>
               <span>
@@ -52,8 +47,8 @@ export function LoginPage() {
                 동작합니다.
               </span>
             </>
-          )}
-        </div>
+          </div>
+        ) : null}
       </section>
     </main>
   );

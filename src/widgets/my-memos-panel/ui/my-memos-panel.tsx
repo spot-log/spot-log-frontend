@@ -9,7 +9,7 @@ export function MyMemosPanel({
   memos,
   onChangeTab,
   onChangeSort,
-  onOpenMap,
+  onOpenDetail,
   onDelete,
   onRepublish,
   onOpenComposer,
@@ -21,7 +21,7 @@ export function MyMemosPanel({
   memos: SpotLogMemo[];
   onChangeTab: (value: 'private' | 'public' | 'expired') => void;
   onChangeSort: (value: MemoSort) => void;
-  onOpenMap: (id: string) => void;
+  onOpenDetail: (id: string) => void;
   onDelete: (id: string) => void;
   onRepublish: (id: string) => void;
   onOpenComposer: () => void;
@@ -37,7 +37,7 @@ export function MyMemosPanel({
       />
 
       {activeTab === 'expired' ? (
-        <p className="helper-note">만료 탭에서는 거리 정렬을 제외하고 재공개 여부를 먼저 확인할 수 있습니다.</p>
+        <p className="helper-note">만료 탭에서는 거리 정렬을 제외하고 공개 여부를 먼저 확인할 수 있습니다.</p>
       ) : null}
 
       {!memos.length ? (
@@ -60,9 +60,9 @@ export function MyMemosPanel({
               dDay={memo.dDay ?? calculateDDay(memo.expiresAtIso, memo.status)}
               expired={memo.status === 'expired'}
               progress={memo.progress ?? calculateProgress(memo.createdAtIso, memo.expiresAtIso, memo.status)}
-              primaryActionLabel={memo.status === 'expired' ? '재공개' : '지도에서 보기'}
+              primaryActionLabel={memo.status === 'expired' ? '재공개' : '상세보기'}
               secondaryActionLabel="삭제"
-              onPrimaryAction={() => (memo.status === 'expired' ? onRepublish(memo.id) : onOpenMap(memo.id))}
+              onPrimaryAction={() => (memo.status === 'expired' ? onRepublish(memo.id) : onOpenDetail(memo.id))}
               onSecondaryAction={() => onDelete(memo.id)}
             />
           ))}

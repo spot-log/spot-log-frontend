@@ -20,6 +20,8 @@ function formatDateInput(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+export const DEFAULT_PUBLIC_EXPIRY_DAYS = 30;
+
 export const bottomTabs: Array<{ value: SpotLogTab; label: string }> = [
   { value: 'map', label: '지도' },
   { value: 'nearby', label: '주변 메모' },
@@ -133,17 +135,17 @@ export function getExpiryIso(preset: ComposeDraft['expiryPreset'], customDate: s
   } else if (preset === '1w') {
     date.setDate(date.getDate() + 7);
   } else if (preset === '1m') {
-    date.setMonth(date.getMonth() + 1);
+    date.setDate(date.getDate() + DEFAULT_PUBLIC_EXPIRY_DAYS);
   } else if (preset === '3m') {
-    date.setMonth(date.getMonth() + 3);
+    date.setDate(date.getDate() + DEFAULT_PUBLIC_EXPIRY_DAYS * 3);
   }
 
   return `${date.toISOString().slice(0, 10)}T23:59:59+09:00`;
 }
 
 export function createInitialDraft(currentLocation?: Pick<LocationResult, 'id' | 'name'>): ComposeDraft {
-  const oneWeekLater = new Date();
-  oneWeekLater.setDate(oneWeekLater.getDate() + 7);
+  const defaultExpiryDate = new Date();
+  defaultExpiryDate.setDate(defaultExpiryDate.getDate() + DEFAULT_PUBLIC_EXPIRY_DAYS);
 
   return {
     title: '',
@@ -151,8 +153,8 @@ export function createInitialDraft(currentLocation?: Pick<LocationResult, 'id' |
     placeQuery: currentLocation?.name ?? '',
     selectedLocationId: currentLocation?.id ?? '',
     visibility: 'public',
-    expiryPreset: '1w',
-    customDate: formatDateInput(oneWeekLater),
+    expiryPreset: '1m',
+    customDate: formatDateInput(defaultExpiryDate),
     radius: 100,
   };
 }

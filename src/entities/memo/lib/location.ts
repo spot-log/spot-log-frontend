@@ -1,4 +1,4 @@
-import { formatDistance } from '../model/memo.mock';
+import { calculateProgress, formatDistance } from '../model/memo.mock';
 import type { LocationResult, SpotLogMemo } from '../model/memo';
 import type { ApiMemo } from '../api/memos';
 
@@ -168,7 +168,10 @@ export function mapApiMemoToSpotLogMemo({
     createdAt: formatDateLabel(memo.createdAt) ?? memo.createdAt,
     expiresAt: formatDateLabel(memo.expiresAt),
     status,
-    progress: undefined,
+    progress:
+      visibility === 'public'
+        ? calculateProgress(memo.createdAt, memo.expiresAt ?? undefined, status)
+        : undefined,
     bookmarked,
     author: undefined,
     owner: owner ?? (memo.authorId && currentUserId && memo.authorId === currentUserId ? 'me' : 'others'),

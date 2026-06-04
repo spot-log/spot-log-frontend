@@ -13,14 +13,17 @@ export interface KakaoMapMarker {
   tone: MarkerTone;
   label?: string;
   subtitle?: string;
+  opacity?: number;
 }
 
 function svgMarkerDataUrl({
   tone,
   active,
+  opacity = 1,
 }: {
   tone: MarkerTone;
   active?: boolean;
+  opacity?: number;
 }) {
   const fill =
     tone === 'current' ? '#185FA5' : tone === 'private' ? '#22211F' : '#D86F45';
@@ -28,8 +31,9 @@ function svgMarkerDataUrl({
   const size = active ? 28 : 24;
   const innerRadius = tone === 'current' ? 5 : 6;
   const outerRadius = tone === 'current' ? 10 : 9;
+  const normalizedOpacity = Math.min(1, Math.max(0.08, opacity));
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" opacity="${normalizedOpacity}">
       <circle cx="12" cy="12" r="${outerRadius}" fill="${fill}" stroke="${stroke}" stroke-width="${tone === 'current' ? 3 : 2}" />
       <circle cx="12" cy="12" r="${innerRadius}" fill="#FFFFFF" fill-opacity="${tone === 'current' ? 0.28 : 0.18}" />
     </svg>
@@ -136,7 +140,7 @@ export function KakaoMapCanvas({
   }, [active, isReady, mapCenter.lat, mapCenter.lng]);
 
   useEffect(() => {
-    if (!mapRef.current) {
+    if (!mapRef.current || !isReady) {
       return;
     }
 
@@ -158,6 +162,7 @@ export function KakaoMapCanvas({
         svgMarkerDataUrl({
           tone: marker.tone,
           active: isActive,
+          opacity: marker.opacity,
         }),
         new kakao.maps.Size(size, size),
         {
@@ -197,10 +202,10 @@ export function KakaoMapCanvas({
       markerRefs.current.forEach((marker) => marker.setMap(null));
       infoWindowRefs.current.forEach((infoWindow) => infoWindow.close());
     };
-  }, [markers, onMarkerClick, selectedMarkerId]);
+  }, [isReady, markers, onMarkerClick, selectedMarkerId]);
 
   useEffect(() => {
-    if (!mapRef.current || !window.kakao) {
+    if (!mapRef.current || !window.kakao || !isReady) {
       return;
     }
 
@@ -230,7 +235,7 @@ export function KakaoMapCanvas({
     return () => {
       instance.setMap(null);
     };
-  }, [circle]);
+  }, [circle, isReady]);
 
   return (
     <div className={cx('kakao-map-shell', className)}>

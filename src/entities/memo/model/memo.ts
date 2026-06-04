@@ -6,7 +6,7 @@ export type MyMemoTab = 'private' | 'public' | 'expired';
 export type MemoOwner = 'me' | 'others';
 export type MemoSort = 'recent' | 'expiring' | 'distance';
 export type PermissionState = 'granted' | 'prompt' | 'denied';
-export type MemoSheetContext = 'map' | 'nearby' | 'bookmark';
+export type MemoSheetContext = 'map' | 'nearby' | 'my' | 'bookmark';
 
 export interface LocationResult {
   id: string;

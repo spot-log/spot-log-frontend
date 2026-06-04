@@ -16,4 +16,5 @@ export interface AuthSession {
 export interface GoogleCodeExchangeRequest {
   code: string;
   redirectUri: string;
+  codeVerifier?: string;
 }

@@ -11,6 +11,9 @@ import {
 } from '../../../shared/ui';
 
 export function SettingsPanel({
+  profileName,
+  profileEmail,
+  profileProvider,
   memoCount,
   bookmarkCount,
   privateAlerts,
@@ -24,6 +27,9 @@ export function SettingsPanel({
   onOpenDeleteAccount,
   onPreviewOverlay,
 }: {
+  profileName: string;
+  profileEmail: string;
+  profileProvider: string;
   memoCount: number;
   bookmarkCount: number;
   privateAlerts: boolean;
@@ -40,9 +46,9 @@ export function SettingsPanel({
   return (
     <section className="screen-block">
       <ProfileSection
-        name="유진 김"
-        email="yujin.kim@gmail.com"
-        provider="Google"
+        name={profileName}
+        email={profileEmail}
+        provider={profileProvider}
         memoCount={memoCount}
         bookmarkCount={bookmarkCount}
       />

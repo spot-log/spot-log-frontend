@@ -1,19 +1,7 @@
-import { buildApiUrl } from '../../../shared/config';
-import type { AuthSession } from '../model/types';
+import { buildApiUrl, googleOAuthRedirectUri } from '../../../shared/config';
+import type { AuthSession, GoogleCodeExchangeRequest } from '../model/types';
 
-const googleOAuthCallbackPath = '/auth/google/callback';
-
-function buildGoogleCallbackUrl(search: string | URLSearchParams) {
-  const normalizedSearch = typeof search === 'string' ? search : search.toString();
-
-  if (!normalizedSearch) {
-    return buildApiUrl(googleOAuthCallbackPath);
-  }
-
-  return `${buildApiUrl(googleOAuthCallbackPath)}${
-    normalizedSearch.startsWith('?') ? normalizedSearch : `?${normalizedSearch}`
-  }`;
-}
+const googleOAuthCodePath = '/auth/google/code';
 
 async function readExchangeError(response: Response) {
   const contentType = response.headers.get('content-type') ?? '';
@@ -32,18 +20,31 @@ async function readExchangeError(response: Response) {
     }
   }
 
-  const errorText = await response.text();
+  const errorText = await response.text().catch(() => '');
   return errorText || 'Google login failed.';
 }
 
 export async function exchangeGoogleCode(
-  search: string | URLSearchParams,
+  code: string,
   options?: {
+    redirectUri?: string;
+    codeVerifier?: string;
     signal?: AbortSignal;
   },
 ) {
-  const response = await fetch(buildGoogleCallbackUrl(search), {
-    method: 'GET',
+  const body: GoogleCodeExchangeRequest = {
+    code,
+    redirectUri: options?.redirectUri ?? googleOAuthRedirectUri,
+    ...(options?.codeVerifier ? { codeVerifier: options.codeVerifier } : undefined),
+  };
+
+  const response = await fetch(buildApiUrl(googleOAuthCodePath), {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
     credentials: 'include',
     signal: options?.signal,
   });

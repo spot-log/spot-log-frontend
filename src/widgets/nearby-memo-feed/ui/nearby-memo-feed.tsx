@@ -111,6 +111,7 @@ export function NearbyMemoFeed({
                     id: group.representative.id,
                     position: group.representative.coordinate,
                     tone: 'public' as const,
+                    opacity: group.representative.progress ?? 1,
                     label: group.locationName,
                     subtitle:
                       group.memos.length > 1

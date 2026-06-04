@@ -15,7 +15,7 @@ export function MapPage() {
         page.setSheetContext('map');
         page.setSheetOpen(true);
       }}
-      onOpenComposer={() => page.setComposeOpen(true)}
+      onOpenComposer={page.openComposeModal}
       onLocateCurrentPosition={() => page.requestCurrentLocation()}
     />
   );

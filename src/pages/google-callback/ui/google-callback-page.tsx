@@ -25,12 +25,13 @@ export function GoogleCallbackPage() {
       setErrorMessage('Google authorization code is missing.');
       return;
     }
+    const authorizationCode = code;
 
     const abortController = new AbortController();
 
     async function run() {
       try {
-        const session = await exchangeGoogleCode(location.search, {
+        const session = await exchangeGoogleCode(authorizationCode, {
           signal: abortController.signal,
         });
 
@@ -58,7 +59,7 @@ export function GoogleCallbackPage() {
         <span className="login-page__badge">Google OAuth</span>
         <div className="login-page__hero">
           <h1>Completing sign in</h1>
-          <p>{errorMessage || 'Sending the Google callback to the backend session endpoint.'}</p>
+          <p>{errorMessage || 'Sending the Google authorization code to the backend login endpoint.'}</p>
         </div>
       </section>
     </main>

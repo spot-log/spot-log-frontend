@@ -13,10 +13,10 @@ export function MyMemosPage() {
       memos={page.visibleMyMemos}
       onChangeTab={page.setMyTab}
       onChangeSort={page.setMemoSort}
-      onOpenMap={page.openMapMemo}
+      onOpenDetail={page.openMyMemoDetail}
       onDelete={page.setDeleteMemoId}
       onRepublish={page.handleRepublishMemo}
-      onOpenComposer={() => page.setComposeOpen(true)}
+      onOpenComposer={page.openComposeModal}
     />
   );
 }

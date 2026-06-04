@@ -16,6 +16,7 @@ export function MemoSheet({
   onOpenMap,
   onToggleBookmark,
   onOpenDetailTab,
+  onEditMemo,
 }: {
   open: boolean;
   memos: SpotLogMemo[];
@@ -25,6 +26,7 @@ export function MemoSheet({
   onOpenMap: (id: string) => void;
   onToggleBookmark: (id: string) => void;
   onOpenDetailTab: (tab: 'nearby' | 'my') => void;
+  onEditMemo: (memo: SpotLogMemo) => void;
 }) {
   const selectedMemo =
     (selectedMemoId ? memos.find((memo) => memo.id === selectedMemoId) : undefined) ?? memos[0] ?? null;
@@ -42,6 +44,10 @@ export function MemoSheet({
       : memos;
 
   function getPrimaryActionLabel(memo: SpotLogMemo) {
+    if (context === 'my') {
+      return '지도에서 보기';
+    }
+
     if (memo.visibility === 'private') {
       return '내 메모로 이동';
     }
@@ -50,6 +56,11 @@ export function MemoSheet({
   }
 
   function handlePrimaryAction(memo: SpotLogMemo) {
+    if (context === 'my') {
+      onOpenMap(memo.id);
+      return;
+    }
+
     if (memo.visibility === 'public' && context !== 'map') {
       onOpenMap(memo.id);
       return;
@@ -87,8 +98,14 @@ export function MemoSheet({
               progress={memo.progress ?? calculateProgress(memo.createdAtIso, memo.expiresAtIso, memo.status)}
               bookmarked={Boolean(memo.bookmarked)}
               primaryActionLabel={getPrimaryActionLabel(memo)}
+              secondaryActionLabel={memo.owner === 'me' && memo.status !== 'expired' ? '수정하기' : undefined}
               onPrimaryAction={() => handlePrimaryAction(memo)}
-              onBookmarkToggle={memo.visibility === 'public' ? () => onToggleBookmark(memo.id) : undefined}
+              onSecondaryAction={
+                memo.owner === 'me' && memo.status !== 'expired' ? () => onEditMemo(memo) : undefined
+              }
+              onBookmarkToggle={
+                memo.visibility === 'public' && memo.owner !== 'me' ? () => onToggleBookmark(memo.id) : undefined
+              }
             />
           ))}
         </div>

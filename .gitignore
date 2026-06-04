@@ -5,3 +5,4 @@ dist
 .env.local
 google-oauth.json
 google-services.json
+.playwright-mcp

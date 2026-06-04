@@ -104,7 +104,9 @@ export function AppShell() {
             open={
               page.sheetOpen &&
               ((page.sheetContext === 'bookmark' && activeTab === 'settings') ||
-                (page.sheetContext !== 'bookmark' && (activeTab === 'map' || activeTab === 'nearby')))
+                (page.sheetContext === 'my' && activeTab === 'my') ||
+                ((page.sheetContext === 'map' || page.sheetContext === 'nearby') &&
+                  (activeTab === 'map' || activeTab === 'nearby')))
             }
             memos={page.memoSheetMemos}
             selectedMemoId={page.selectedMemoId}
@@ -112,6 +114,7 @@ export function AppShell() {
             onClose={() => page.setSheetOpen(false)}
             onOpenMap={page.openMapMemo}
             onToggleBookmark={page.toggleBookmark}
+            onEditMemo={page.openMemoEditor}
             onOpenDetailTab={(tab) => {
               navigate(TAB_PATHS[tab]);
               page.setSheetOpen(false);
@@ -120,13 +123,14 @@ export function AppShell() {
 
           <CreateMemoModal
             open={page.composeOpen}
+            mode={page.composeMode}
             draft={page.draft}
             validationMessage={page.draftValidationMessage}
             locations={page.locations}
             selectedLocation={page.selectedLocation}
             isSearchingLocations={page.isSearchingLocations}
             locationSearchMessage={page.locationSearchMessage}
-            onClose={() => page.setComposeOpen(false)}
+            onClose={page.closeComposeModal}
             onSave={page.handleSaveMemo}
             onChangeDraft={page.updateDraft}
             onSelectLocation={page.selectLocation}
@@ -134,16 +138,14 @@ export function AppShell() {
 
           <InAppPopupOverlay
             open={page.overlayOpen}
-            title="알림 미리보기"
-            message={`'${page.selectedMemo?.title ?? '메모'}'를 확인할 시간입니다.`}
+            title={page.notificationTarget?.notificationTitle ?? '알림 미리보기'}
+            message={
+              page.notificationTarget?.message ??
+              `'${page.selectedMemo?.title ?? '메모'}'를 확인할 시간입니다.`
+            }
             actionLabel="메모 보기"
             onClose={() => page.setOverlayOpen(false)}
-            onAction={() => {
-              page.setOverlayOpen(false);
-              navigate('/map');
-              page.setSheetContext('map');
-              page.setSheetOpen(true);
-            }}
+            onAction={page.handleOpenNotificationDetail}
           />
         </div>
 
@@ -161,7 +163,7 @@ export function AppShell() {
         <AlertDialog
           open={page.deleteAccountOpen}
           title="계정을 삭제할까요?"
-          description="계정 삭제는 현재 프론트에만 경고 UI가 있고, 백엔드 삭제 API는 확인되지 않아 연결하지 않았습니다."
+          description="계정을 삭제하면 작성한 개인 메모와 공개 메모가 모두 삭제되고 로그아웃됩니다."
           cancelLabel="취소"
           confirmLabel="계정 삭제"
           destructive
