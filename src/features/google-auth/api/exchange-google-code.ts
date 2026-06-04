@@ -1,4 +1,4 @@
-import { buildApiUrl, googleOAuthRedirectUri } from '../../../shared/config';
+import { googleOAuthRedirectUri } from '../../../shared/config';
 import type { AuthSession, GoogleCodeExchangeRequest } from '../model/types';
 
 const googleOAuthCodePath = '/auth/google/code';
