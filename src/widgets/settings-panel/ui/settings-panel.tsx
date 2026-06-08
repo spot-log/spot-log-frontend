@@ -26,9 +26,6 @@ export function SettingsPanel({
   onLogout,
   onOpenDeleteAccount,
   onPreviewOverlay,
-  canInstallApp,
-  isAppInstalled,
-  onInstallApp,
 }: {
   profileName: string;
   profileEmail: string;
@@ -45,9 +42,6 @@ export function SettingsPanel({
   onLogout: () => void;
   onOpenDeleteAccount: () => void;
   onPreviewOverlay: () => void;
-  canInstallApp: boolean;
-  isAppInstalled: boolean;
-  onInstallApp: () => void;
 }) {
   return (
     <section className="screen-block">
@@ -82,25 +76,6 @@ export function SettingsPanel({
             onChange={onTogglePublicAlerts}
           />
         </div>
-      </div>
-
-      <div className="panel-card">
-        <div className="panel-card__header">
-          <div>
-            <strong>앱 설치</strong>
-            <p>
-              {isAppInstalled
-                ? '이미 설치된 상태입니다.'
-                : canInstallApp
-                  ? '브라우저 설치 프롬프트를 열 수 있습니다.'
-                  : '브라우저가 설치 조건을 만족하면 설치 버튼이 활성화됩니다.'}
-            </p>
-          </div>
-        </div>
-
-        <Button variant={canInstallApp ? 'primary' : 'secondary'} fullWidth onClick={onInstallApp}>
-          {isAppInstalled ? '설치 완료' : canInstallApp ? '앱 설치' : '설치 방법 보기'}
-        </Button>
       </div>
 
       <div className="panel-card">

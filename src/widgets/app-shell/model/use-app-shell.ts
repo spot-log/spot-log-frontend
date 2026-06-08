@@ -385,22 +385,13 @@ export function useAppShell({
     () =>
       (memoDetail && memoDetail.id === selectedMemoId ? memoDetail : null) ??
       knownMemos.find((memo) => memo.id === selectedMemoId) ??
-      sortedNearbyMemos[0] ??
-      myPublicMemos[0] ??
-      bookmarkedMemos[0] ??
-      myPrivateMemos[0] ??
       null,
-    [bookmarkedMemos, knownMemos, memoDetail, myPrivateMemos, myPublicMemos, selectedMemoId, sortedNearbyMemos],
+    [knownMemos, memoDetail, selectedMemoId],
   );
 
   const mapMemo = useMemo(
-    () =>
-      (selectedMemo && selectedMemo.status !== 'expired' ? selectedMemo : null) ??
-      sortedNearbyMemos[0] ??
-      myPublicMemos[0] ??
-      myPrivateMemos[0] ??
-      null,
-    [myPrivateMemos, myPublicMemos, selectedMemo, sortedNearbyMemos],
+    () => (selectedMemo && selectedMemo.status !== 'expired' ? selectedMemo : null),
+    [selectedMemo],
   );
 
   const memoSheetContext: MemoSheetContext = useMemo(() => {
@@ -774,9 +765,9 @@ export function useAppShell({
         }
       },
       {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 30000,
+        enableHighAccuracy: false,
+        timeout: 20000,
+        maximumAge: 60000,
       },
     );
   }
@@ -1742,9 +1733,6 @@ export function useAppShell({
   }, [bookmarkedMemoIds, currentCoordinate, selectedMemoId, session?.accessToken, session?.user.id, sheetOpen]);
 
   useEffect(() => {
-    const defaultSelectedMemoId =
-      sortedNearbyMemos[0]?.id ?? myPublicMemos[0]?.id ?? bookmarkedMemos[0]?.id ?? myPrivateMemos[0]?.id ?? '';
-
     const selectedMemoStillExists =
       Boolean(selectedMemoId) &&
       (knownMemos.some((memo) => memo.id === selectedMemoId) || memoDetail?.id === selectedMemoId);
@@ -1759,15 +1747,7 @@ export function useAppShell({
     if (selectedMemoStillExists) {
       return;
     }
-
-    if (defaultSelectedMemoId) {
-      setSelectedMemoId(defaultSelectedMemoId);
-    }
-  }, [bookmarkedMemos, knownMemos, memoDetail, myPrivateMemos, myPublicMemos, selectedMemoId, sortedNearbyMemos]);
-
-  useEffect(() => {
-    requestCurrentLocation({ silent: true });
-  }, []);
+  }, [knownMemos, memoDetail, selectedMemoId]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !('geolocation' in navigator)) {
@@ -1790,12 +1770,14 @@ export function useAppShell({
         );
       },
       (error) => {
-        setLocationPermission(error.code === error.PERMISSION_DENIED ? 'denied' : 'prompt');
+        if (error.code === error.PERMISSION_DENIED) {
+          setLocationPermission('denied');
+          return;
+        }
       },
       {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 10000,
+        enableHighAccuracy: false,
+        maximumAge: 60000,
       },
     );
 
