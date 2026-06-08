@@ -229,6 +229,7 @@ export function useAppShell({
   const navigateTabHandlerRef = useRef(onNavigateTab);
   const toastTimeoutsRef = useRef<Record<number, number>>({});
   const notificationWorkerRef = useRef<Worker | null>(null);
+  const locationWatchIdRef = useRef<number | null>(null);
 
   const [session, setSession] = useState<AuthSession | null>(() => readAuthSession());
   const [rawMyMemos, setRawMyMemos] = useState<ApiMemo[]>([]);
@@ -553,6 +554,22 @@ export function useAppShell({
     setToasts((current) => [nextToast, ...current].slice(0, 3));
   }
 
+  function applyCurrentCoordinate(
+    coordinate: Coordinate,
+    options?: {
+      silent?: boolean;
+    },
+  ) {
+    setCurrentCoordinate((current) =>
+      current && current.lat === coordinate.lat && current.lng === coordinate.lng ? current : coordinate,
+    );
+    setLocationPermission('granted');
+
+    if (!options?.silent) {
+      pushToast('현재 위치를 갱신했습니다', '메모 목록과 지도를 최신 위치 기준으로 업데이트했습니다.', 'success');
+    }
+  }
+
   async function handleInstallApp() {
     if (isAppInstalled) {
       pushToast('이미 설치되어 있습니다', '홈 화면이나 앱 목록에서 SpotLog를 열 수 있습니다.');
@@ -737,15 +754,13 @@ export function useAppShell({
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setCurrentCoordinate({
+        applyCurrentCoordinate(
+          {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
-        });
-        setLocationPermission('granted');
-
-        if (!options?.silent) {
-          pushToast('현재 위치를 갱신했습니다', '메모 목록과 지도를 최신 위치 기준으로 업데이트했습니다.', 'success');
-        }
+          },
+          options,
+        );
       },
       (error) => {
         setLocationPermission(error.code === error.PERMISSION_DENIED ? 'denied' : 'prompt');
@@ -1752,6 +1767,44 @@ export function useAppShell({
 
   useEffect(() => {
     requestCurrentLocation({ silent: true });
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('geolocation' in navigator)) {
+      return;
+    }
+
+    if (locationWatchIdRef.current !== null) {
+      navigator.geolocation.clearWatch(locationWatchIdRef.current);
+      locationWatchIdRef.current = null;
+    }
+
+    locationWatchIdRef.current = navigator.geolocation.watchPosition(
+      (position) => {
+        applyCurrentCoordinate(
+          {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          },
+          { silent: true },
+        );
+      },
+      (error) => {
+        setLocationPermission(error.code === error.PERMISSION_DENIED ? 'denied' : 'prompt');
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 10000,
+      },
+    );
+
+    return () => {
+      if (locationWatchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(locationWatchIdRef.current);
+        locationWatchIdRef.current = null;
+      }
+    };
   }, []);
 
   return {
